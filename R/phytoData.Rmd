@@ -1,0 +1,63 @@
+---
+title: "phytoData"
+author: "B"
+date: "Tuesday, October 27, 2015"
+output: html_document
+---
+```{r setup, include=FALSE, echo=FALSE, cache=FALSE} 
+#########function to install (if needed) and load R packages by list
+libs<-c("RODBC","dplyr") #list of packages to load
+
+installLoad<-function(pck){ #user defined function
+    if(!pck%in%installed.packages()){install.packages(pck)}
+    require(pck, character.only = TRUE)
+  }
+lapply(libs,function(x) installLoad(x))  #Load/Install require packages
+```
+
+To Do List
+-------------------------
+* everything
+
+
+Introduction
+-------------------------
+Work with the NLA 2007 phytoplankton data
+
+Data Steps
+-------------------------
+
+* get the phyto softcount data from waterbodydatabase.mdb
+
+###Data Definitions
+
+Field  | Units | Description
+------------- | ------------- | -------------
+**SITE_ID** | (char) |Unique site identification number
+**VISIT_NO** | (num) |Lake visit number. 1-1st field sampling visit; 2-2nd field sampling visit
+**DATE_COL** | (date) |Date of site visit
+**SAMPLED_PHYT** | (char) |Phytoplankton sample collected?
+**SAMPLE_CATEGORY** | (char) |(P)rimary or Field (D)uplicate
+**INDXSAMP_PHYT** | (YES/NO) |Index phytoplankton sample for site (YES/NO)-typically the Visit 1 Primary sample
+**SAMPLE_TYPE** | (char) |Type of sample (soft ALGAE/DIATOM)
+**SAMPLE_DEPTH** | (m) |Depth of integrated sample (typically 2 m)
+**TAXATYPE** | (cells/ml) |Type of algae
+**OTU** | (char) |Operational Taxonomic Unit 
+**ABUND** | (char) |Abundance (char)
+**DIVISION** | (char) |Division name (from taxa list)
+**ORDER** | (char) |Order name (from taxa list)
+**FAMILY** | (char) |Family name (from taxa list)
+**GENUS** | (char) |Genus name (from taxa list)
+**SPECIES** | (char) |Species name (from taxa list)
+**VARIETY** | (char) |Variety name (from taxa list)
+
+```{r phytoData, include=FALSE, echo=FALSE, cache=FALSE} 
+# Read data-****Make Sure the Path Is Correct****
+con <- odbcConnectAccess("c:/bryan/EPA/Data/WaterbodyDatabase/WaterbodyDatabase.mdb")
+phyto<- sqlQuery(con, "
+SELECT tblNLA_nla_phyt_softcount_20091023.SITE_ID, tblNLA_nla_phyt_softcount_20091023.VISIT_NO, tblNLA_nla_phyt_softcount_20091023.DATE_COL, tblNLA_nla_phyt_softcount_20091023.SAMPLED_PHYT, tblNLA_nla_phyt_softcount_20091023.SAMPLE_CATEGORY, tblNLA_nla_phyt_softcount_20091023.INDXSAMP_PHYT, tblNLA_nla_phyt_softcount_20091023.SAMPLE_TYPE, tblNLA_nla_phyt_softcount_20091023.SAMPLE_DEPTH, tblNLA_nla_phyt_softcount_20091023.TAXATYPE, tblNLA_nla_phyt_softcount_20091023.OTU, tblNLA_nla_phyt_softcount_20091023.ABUND, tblNLA_nla_phyt_softcount_20091023.DIVISION, tblNLA_nla_phyt_softcount_20091023.FAMILY, tblNLA_nla_phyt_softcount_20091023.ORDER, tblNLA_nla_phyt_softcount_20091023.GENUS, tblNLA_nla_phyt_softcount_20091023.SPECIES, tblNLA_nla_phyt_softcount_20091023.VARIETY
+FROM tblNLA_nla_phyt_softcount_20091023;
+")
+close(con)
+#str(phyto)
+```
