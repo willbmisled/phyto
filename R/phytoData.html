@@ -61,21 +61,40 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="to-do-list" class="section level2">
 <h2>To Do List</h2>
 <ul>
-<li>everything</li>
+<li>check INDXSAMP_PHYT logic (see below)</li>
+<li>add environmental data</li>
 </ul>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>During the summer of 2015 the New England states monitored in lakes. Participants included state and tribal governments, local watershed associations, EPA Region 1, and the EPA Atlantic Ecology Division.</p>
+<p>Work with the NLA 2007 phytoplankton data</p>
 </div>
 <div id="data-steps" class="section level2">
 <h2>Data Steps</h2>
 <ul>
-<li>get the phyto softcount data from waterbodydatabase.mdb</li>
+<li><p>get the phytoplankton data from waterbodydatabase.mdb</p></li>
+<li><p>Data Filters</p>
+<ul>
+<li><strong>INDXSAMP_PHYT==‘YES’</strong>: NO=3776, YES=28195; This appears to be a field to identify which of multiple samples to use. Additional samples collected as field duplicates (SAMPLE_CATEGORY==‘D’), and potentially as VISIT_NO==2.</li>
+<li><strong>SAMPLED_PHYT=“YES”</strong>; 3 lost samples removed</li>
+</ul></li>
+<li>Check to see there is only one VISIT_NO per SITE_ID; there is.</li>
+<li>Check to see there is only one ABUND per OTU &amp; SITE_ID;
+<ul>
+<li>There are 1606 SITE_ID OTU combinations with multiple ABUND measures</li>
+<li>This happens when there are more than one taxa (e.g. two species in an OTU defined as a genus)</li>
+<li>Fix this by summing ABUND by SITE_ID and OTU</li>
+<li>create new data.frame “OTU” with the aggregated data</li>
+</ul></li>
+<li><p>save data as an r dataset</p></li>
 </ul>
 </div>
 <div id="data-definitions" class="section level2">
 <h2>Data Definitions</h2>
+<ul>
+<li>to access data use: load(‘data/phyto.rda’)</li>
+</ul>
+<p><strong>data.frame: phyto obs.=28192</strong></p>
 <table>
 <thead>
 <tr class="header">
@@ -93,7 +112,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <tr class="even">
 <td align="left"><strong>VISIT_NO</strong></td>
 <td align="left">(num)</td>
-<td align="left">Lake visit number. 1-1st field sampling visit; 2-2nd field sampling visit</td>
+<td align="left">Lake visit number. 1-1st field sampling visit; 2-2nd field sampling visit; after filtering only sample 1 will remain.</td>
 </tr>
 <tr class="odd">
 <td align="left"><strong>DATE_COL</strong></td>
@@ -116,19 +135,71 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <td align="left">Index phytoplankton sample for site (YES/NO)-typically the Visit 1 Primary sample</td>
 </tr>
 <tr class="odd">
-<td align="left"><strong>SAMPLE_TYPE</strong></td>
-<td align="left">(char)</td>
-<td align="left">Type of sample (soft ALGAE/DIATOM)</td>
-</tr>
-<tr class="even">
 <td align="left"><strong>SAMPLE_DEPTH</strong></td>
 <td align="left">(m)</td>
 <td align="left">Depth of integrated sample (typically 2 m)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><strong>TAXATYPE</strong></td>
 <td align="left">(cells/ml)</td>
 <td align="left">Type of algae</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>OTU</strong></td>
+<td align="left">(char)</td>
+<td align="left">Operational Taxonomic Unit</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>ABUND</strong></td>
+<td align="left">(cells/mL)</td>
+<td align="left">Abundance</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>DIVISION</strong></td>
+<td align="left">(char)</td>
+<td align="left">Division name (from taxa list)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>ORDER</strong></td>
+<td align="left">(char)</td>
+<td align="left">Order name (from taxa list)</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>FAMILY</strong></td>
+<td align="left">(char)</td>
+<td align="left">Family name (from taxa list)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>GENUS</strong></td>
+<td align="left">(char)</td>
+<td align="left">Genus name (from taxa list)</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>SPECIES</strong></td>
+<td align="left">(char)</td>
+<td align="left">Species name (from taxa list)</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>VARIETY</strong></td>
+<td align="left">(char)</td>
+<td align="left">Variety name (from taxa list)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>data.frame: OTU obs.=25861</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Units</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>SITE_ID</strong></td>
+<td align="left">(char)</td>
+<td align="left">Unique site identification number</td>
 </tr>
 <tr class="even">
 <td align="left"><strong>OTU</strong></td>
@@ -136,39 +207,14 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <td align="left">Operational Taxonomic Unit</td>
 </tr>
 <tr class="odd">
-<td align="left"><strong>ABUND</strong></td>
-<td align="left">(char)</td>
-<td align="left">Abundance (char)</td>
+<td align="left"><strong>n</strong></td>
+<td align="left">(num)</td>
+<td align="left">number of observations in sumAbund</td>
 </tr>
 <tr class="even">
-<td align="left"><strong>DIVISION</strong></td>
-<td align="left">(char)</td>
-<td align="left">Division name (from taxa list)</td>
-</tr>
-<tr class="odd">
-<td align="left"><strong>ORDER</strong></td>
-<td align="left">(char)</td>
-<td align="left">Order name (from taxa list)</td>
-</tr>
-<tr class="even">
-<td align="left"><strong>FAMILY</strong></td>
-<td align="left">(char)</td>
-<td align="left">Family name (from taxa list)</td>
-</tr>
-<tr class="odd">
-<td align="left"><strong>GENUS</strong></td>
-<td align="left">(char)</td>
-<td align="left">Genus name (from taxa list)</td>
-</tr>
-<tr class="even">
-<td align="left"><strong>SPECIES</strong></td>
-<td align="left">(char)</td>
-<td align="left">Species name (from taxa list)</td>
-</tr>
-<tr class="odd">
-<td align="left"><strong>VARIETY</strong></td>
-<td align="left">(char)</td>
-<td align="left">Variety name (from taxa list)</td>
+<td align="left"><strong>sumAbund</strong></td>
+<td align="left">(cells/mL)</td>
+<td align="left">Abundance of OTU; some OTU include multiple observations of lower taxonomic levels. These are summed.</td>
 </tr>
 </tbody>
 </table>
