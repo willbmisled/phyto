@@ -88,7 +88,7 @@ d<-summarise(group_by(phyto,SITE_ID, OTU), sumAbund=sum(ABUND))
 OTU<-merge(b,d,by=c('SITE_ID','OTU'))
 
 #save
-  #save(phyto,OTU,file='data/phyto.rda')
+  save(phyto,OTU,file='data/phyto.rda')
 ```
 
 
